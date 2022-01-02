@@ -13,12 +13,9 @@ GoldDiffWeight = 1
 visionScoreWeight = 1
 
 def calculateScorePerUser(userName, target) :
-    print("함수 시작")
-    start_time = t.time()
     summonerDTO = fun.getSummonerInfo(userName)
     matchList = fun.getMatchBySummonerDTO(summonerDTO, 20)
     matchInfos = fun.getMatchInfoByMatchID(matchList)
-    print("데이터 받아오기 끝 :", round(t.time() - start_time, 3))
 
     resultSet = {
         "userName" : userName,

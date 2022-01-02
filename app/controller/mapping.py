@@ -61,11 +61,6 @@ def soloUserInfo() :
     try :
         cal.calculateScorePerUser(userName, info)
 
-        for i in range(len(info)) :
-            temp = info[i].items()
-            for item in temp :
-                print(item)
-
         return render_template('/result.html', result = info, length = len(info))
     except HTTPError as e:
         flash("에러 발생 :", e)
@@ -81,7 +76,6 @@ def homePage():
     userNames = fun.nameSlice(inputData)
 
     try :
-        start_time = time.time()
         infoList = []
         threads = []
         averageScore = 0
@@ -98,14 +92,6 @@ def homePage():
         
         averageScore /= len(infoList)
         averageScore = round(averageScore, 1)
-
-        print("총 소요 시간 :", time.time() - start_time)
-
-        for i in range(len(infoList)) :
-            temp = infoList[i].items()
-            for item in temp :
-                print(item)
-            print("\n\n\n")
 
         return render_template('/result.html', result = infoList, averageScore = averageScore, length = len(infoList))
 
