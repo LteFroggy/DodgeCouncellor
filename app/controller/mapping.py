@@ -26,6 +26,7 @@ Darius ever only님이 로비에 참가하셨습니다.
 '''
 fun.calcualteScorePerUser함수가 반환하는 결과입니다!
     resultSet = {
+        "gameCount" : 0,
         "userName" : userName,
         "tier" : "",
         "division" : "",
@@ -61,7 +62,6 @@ def soloUserInfo() :
 
     try :
         cal.calculateScorePerUser(userName, info)
-        print(info[0])
 
         return render_template('/result.html', result = info, length = 1)
     except HTTPError as e:
