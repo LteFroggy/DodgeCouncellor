@@ -18,6 +18,7 @@ def calculateScorePerUser(userName, target) :
     matchInfos = fun.getMatchInfoByMatchID(matchList)
 
     resultSet = {
+        "gameCount" : 0,
         "userName" : userName,
         "tier" : "",
         "division" : "",
@@ -38,10 +39,13 @@ def calculateScorePerUser(userName, target) :
         "totalScore" : 0
     }
 
-    fun.getTier(summonerDTO, resultSet) #티어와 디비전 먼저 세팅
+    # 티어와 디비전 먼저 세팅
+    fun.getTier(summonerDTO, resultSet) 
+
+    # 구해온 게임 횟수를 gameCount에 저장
+    resultSet['gameCount'] = len(matchInfos)
 
     for i in range(len(matchInfos)) :
-
         # 이번 판의 길이를 알아내기 위한 부분
         # 나누는 부분이 if, else로 나눠져있는 이유는 11.21패치 이전에 실행된 게임들에 대해서는 시간 단위가 ms, 이후에는 s이기 때문.
         gameDuration = matchInfos[i]['info']['gameDuration']

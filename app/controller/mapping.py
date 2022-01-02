@@ -58,8 +58,10 @@ def mainPage() :
 def soloUserInfo() :
     userName = request.form["userName"]
     info = []
+
     try :
         cal.calculateScorePerUser(userName, info)
+        print(info[0])
 
         return render_template('/result.html', result = info, length = 1)
     except HTTPError as e:

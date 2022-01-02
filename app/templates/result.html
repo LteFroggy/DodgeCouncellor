@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>측정 결과 창</title>
-        <link href="../static/css/replace.css" rel="stylesheet" type="text/css">
+        <link href="../static/css/result.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id = "header">
@@ -40,6 +40,11 @@
                                         {% if j % 2 == 0 %}
                                             <tr width = 300px>
                                         {% endif %}
+                                                {% if result[i]['gameCount'] - 1 < j %}
+                                                <td class = "noData" colspan = 3 rowspan = 1>
+                                                    정보 없음
+                                                </td>
+                                                {% else  %}
                                                 <td class = "photo">
                                                     <img src="../static/image/champions/{{ result[i]['championName'][j] }}.png" style = "width : 50px; height : 50px;">
                                                 </td>
@@ -51,6 +56,7 @@
                                                 <td class = "score">
                                                     {{ result[i]['trollScore'][j] }}
                                                 </td>
+                                                {% endif %}
                                         {% if j % 2 != 0 %}
                                             </tr>
                                         {% else %}
