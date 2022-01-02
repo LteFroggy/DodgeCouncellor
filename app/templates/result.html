@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>측정 결과 창</title>
+        <link href="../static/css/replace.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div id = "header">
+            <p id = "semiTitle"> <a href = '/' style = "text-decoration: none; color: white">트롤력 측정기</a> </p>
+        </div>
+
+        <div id = body>
+            <center>
+            <table id = "infoList">
+                <tr height = "600px">
+                    {% for i in range(length) %}
+                        {% if result[i]['totalScore'] > 100 %}
+                            <td class = redLight>
+                        {% elif result[i]['totalScore'] > 40 %}
+                            <td class = yellowLight>
+                        {% else %}
+                            <td class = greenLight>
+                        {% endif %}
+                                <p class = "name"> {{ result[i]['userName'] }} </p>
+
+                                <hr style = "border :solid 1px black;">
+
+                                <table id = content>
+                                    <tr>
+                                        <th class = "table_header">챔프</th>
+                                        <th class = "table_header">라인</th>
+                                        <th class = "table_header">트롤력</th>
+                                        <th></th>
+                                        <th class = "table_header">챔프</th>
+                                        <th class = "table_header">라인</th>
+                                        <th class = "table_header">트롤력</th>
+                                    </tr>
+                                    {% for j in range(20) %}
+                                        {% if j % 2 == 0 %}
+                                            <tr width = 300px>
+                                        {% endif %}
+                                                <td class = "photo">
+                                                    <img src="../static/image/champions/{{ result[i]['championName'][j] }}.png" style = "width : 50px; height : 50px;">
+                                                </td>
+
+                                                <td class = "position">
+                                                    {{ result[i]['teamPositionKR'][j] }}
+                                                </td>
+
+                                                <td class = "score">
+                                                    {{ result[i]['trollScore'][j] }}
+                                                </td>
+                                        {% if j % 2 != 0 %}
+                                            </tr>
+                                        {% else %}
+                                            <td width = 20px;></td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
+                                <p class = "sum">
+                                    개인 점수 합산 : {{ result[i]['totalScore'] }} 
+                                </p>
+                            </td>
+                    {% endfor %}
+                </tr>
+            </table>
+            </center>
+            {% if length != 1 %}
+            <div id = "summary">
+                <p>
+                    팀원들의 트롤력 평균은 {{ averageScore }} 점입니다. <br>
+                    {% if averageScore >= 80 %}
+                        당장 도망가세요 
+                    {% elif averageScore >= 60 %}
+                        질 확률이 높습니다
+                    {% elif averageScore >= 40 %}
+                        쉽지 않은 게임입니다
+                    {% elif averageScore >= 10 %}
+                        무난한 게임입니다
+                    {% else %}
+                        버스 탈 준비 하시면 됩니다
+                    {% endif%}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        <div id = "bottom">
+            <p style = "color:white;">
+                <br> 2021-2 게임 내 어뷰징 회피 팀 
+              </p>
+        </div>
+    </body>
+</html>

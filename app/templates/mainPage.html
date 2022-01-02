@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>트롤력 측정기</title>
+    <link rel="stylesheet" href="../static/css/mainPage.css">
+  </head>
+  <body>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <script>
+          alert("{{ messages[-1] }}")
+        </script>
+      {% endif %}
+    {% endwith %}
+    <div id = "container">
+      <div id = "title">
+        <a href="/" style = "text-decoration : none; color : white;">트롤력 측정기</a>
+      </div>
+
+      <div id = "content">
+          <img src="../static/image/mainPhoto.png">
+          <form action="search", method = "POST">
+            <br>
+            <textarea name="identification" cols="65" rows="5" style = "font-size : 20px" placeholder = "채팅창 대화를 붙여넣어주세요" required></textarea>
+            <br><br>
+            <input type="submit" value = "트롤찾기", style = "color : aliceblue; background-color:deepskyblue; width : 100px; height : 50px;font-weight : 500; font-size : 16px;">
+          </form>
+      </div>
+
+      <div id = soloSearch>
+        <p style = "font-size : 20px; color : aliceblue;">
+          내 트롤력이 궁금하다면?
+        </p>
+        <form action="solo", method = "POST">
+          <input type="text" name = "userName" placeholder="닉네임을 입력해주세요" style = "font-size : 16px;" required> <br><br>
+          <input type="submit" value = "알아보기" style = "background : deepskyblue; color : aliceblue; font-weight : 500; font-size : 16px;">
+        </form>
+      </div>
+    </div>
+
+    <div id = bottom>
+      <br>
+      <p style = "color:white;">
+        <br> 2021-2 게임 내 어뷰징 회피 팀 
+      </p>
+    </div>
+  </body>
+</html>
