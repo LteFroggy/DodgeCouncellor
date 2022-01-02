@@ -4,7 +4,7 @@ from riotwatcher import LolWatcher
 from riotwatcher._apis.league_of_legends.SummonerApiV4 import SummonerApiV4
 from riotwatcher._apis.league_of_legends.MatchApiV5 import MatchApiV5
 from riotwatcher._apis.league_of_legends.LeagueApiV4 import LeagueApiV4
-key = '' #키 입력해주세요!
+key = 'RGAPI-c404d684-2d9e-4143-a8f6-a600774bb17b' #키 입력해주세요!
 watcher = LolWatcher(key)
 
 
