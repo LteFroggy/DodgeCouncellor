@@ -1,100 +1,159 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>측정 결과 창</title>
-        <link href="../static/css/result.css" rel="stylesheet" type="text/css">
-    </head>
-    <body>
-        <div id = "header">
-            <p id = "semiTitle"> <a href = '/' style = "text-decoration: none; color: white">트롤력 측정기</a> </p>
-        </div>
 
-        <div id = body>
-            <center>
-            <table id = "infoList">
-                <tr height = "600px">
-                    {% for i in range(length) %}
-                        {% if result[i]['totalScore'] > 100 %}
-                            <td class = redLight>
-                        {% elif result[i]['totalScore'] > 40 %}
-                            <td class = yellowLight>
-                        {% else %}
-                            <td class = greenLight>
-                        {% endif %}
-                                <p class = "name"> {{ result[i]['userName'] }} </p>
+<head>
+	<meta charset="utf-8">
+	<title>측정 결과 창</title>
+	<link href="../static/css/replace.css" rel="stylesheet" type="text/css">
+	<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="../static/css/mainPage.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gothic+A1&display=swap" rel="stylesheet">
+</head>
 
-                                <hr style = "border :solid 1px black;">
+<body>
+	<div class="container-fluid">
+		<div class = "content">
+			<div class="row">
+				<div class="col-md-12">
+					<div id="header">
+						<p id="semititle"> <a href='/'
+								style="top : 30px; text-decoration: none; font-size : 30px; color: white; font-family: 'Do Hyeon', sans-serif;">닷지가 필요할땐&nbsp;&nbsp;dgcall</a>
+						</p>
+					</div><br><br>
+					<div class="row">
+						<div class="col-md-1">
+						</div>
+						{% for i in range(length) %}
+						{% if i % 2 == 1 %}
+						<div class="col-md-2" style = "background-color : gainsboro">
+							{% else %}
+							<div class="col-md-2" style="background-color:whitesmoke">
+								{% endif %}
+								<img src="../static/image/champions/{{ result[i]['trollScorePerChampion'][0]['championName'] }}.png"
+									class="rounded-circle">
+								<p></p>
+								<h3 style="font-family: 'Gothic A1', sans-serif;">
+									{{ result[i]['userName'] }}
+								</h3>
+								<table frame=void>
+									<th width="30%">
+										트롤력
+										<h4>{{ result[i]['totalScore'] }}
+										</h4>
+									</th>
+									<th>
+										{% if result[i]['totalScore'] >= 50 %}
+										<hr width="{{ result[i]['totalScore'] }}%" align="left"
+											style="border :solid 10px red; margin-left:15px">
+										{% elif result[i]['totalScore'] >= 40 %}
+										<hr width="{{ result[i]['totalScore'] }}%" align="left"
+											style="border :solid 10px orangered; margin-left:15px">
+										{% elif result[i]['totalScore'] >= 30 %}
+										<hr width="{{ result[i]['totalScore'] }}%" align="left"
+											style="border :solid 10px yellow; margin-left:15px">
+										{% elif result[i]['totalScore'] >= 20 %}
+										<hr width="{{ result[i]['totalScore'] }}%" align="left"
+											style="border :solid 10px greenyellow; margin-left:15px">
+										{% else %}
+										<hr width="{{ result[i]['totalScore'] }}%" align="left"
+											style="border :solid 10px skyblue; margin-left:15px">
+										{% endif%}
+									</th>
+								</table>
+								{% if i % 2 == 1 %}
+								<hr style="border :solid 1px whitesmoke;">
+								{% else %}
+								<hr style="border :solid 1px white;">
+								{% endif %}
+								</p>
+								<table class="table table-sm table-hover">
+									<tbody>
+										<tr class="table-danger">
+											<td class="photo">
+												<img src="../static/image/champions/{{ result[i]['trollScorePerChampion'][0]['championName'] }}.png"
+													style="width : 50px; height : 50px;">
+											</td>
+											<td width="10%">
+												{{ result[i]['trollScorePerChampion'][0]['trollScore']}}
+											</td>
+											<td>
+												<hr width="{{ result[i]['trollScorePerChampion'][0]['trollScore'] }}%"
+													align="left" style="border :solid 10px orangered; margin-left:15px">
+											</td>
+										</tr>
+										<tr class="table-warning">
+											<td class="photo">
+												<img src="../static/image/champions/{{ result[i]['trollScorePerChampion'][1]['championName'] }}.png"
+													style="width : 50px; height : 50px;">
+											</td>
+											<td width="10%">
+												{{ result[i]['trollScorePerChampion'][1]['trollScore']}}
+											</td>
+											<td>
+												<hr width="{{ result[i]['trollScorePerChampion'][1]['trollScore'] }}%"
+													align="left" style="border :solid 10px bisque; margin-left:15px">
+											</td>
+										</tr>
+										<tr class="table-success">
+											<td class="photo">
+												<img src="../static/image/champions/{{ result[i]['trollScorePerChampion'][2]['championName'] }}.png"
+													style="width : 50px; height : 50px;">
+											</td>
+											<td width="10%">
+												{{ result[i]['trollScorePerChampion'][2]['trollScore']}}
+											</td>
+											<td>
+												<hr width="{{ result[i]['trollScorePerChampion'][2]['trollScore'] }}%"
+													align="left" style="border :solid 10px yellowgreen; margin-left:15px">
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<br>
+								<table id=content>
+									{% for j in range(20) %}
+									{% if j % 2 == 0 %}
+									<tr width=300px>
+										{% endif %}
+										<td class="photo" align="center">
+											<img src="../static/image/champions/{{ result[i]['championName'][j] }}.png"
+												style="width : 50px; height : 50px;">
+										</td>
 
-                                <table id = content>
-                                    <tr>
-                                        <th class = "table_header">챔프</th>
-                                        <th class = "table_header">라인</th>
-                                        <th class = "table_header">트롤력</th>
-                                        <th></th>
-                                        <th class = "table_header">챔프</th>
-                                        <th class = "table_header">라인</th>
-                                        <th class = "table_header">트롤력</th>
-                                    </tr>
-                                    {% for j in range(20) %}
-                                        {% if j % 2 == 0 %}
-                                            <tr width = 300px>
-                                        {% endif %}
-                                                {% if result[i]['gameCount'] - 1 < j %}
-                                                <td class = "noData" colspan = 3 rowspan = 1>
-                                                    정보 없음
-                                                </td>
-                                                {% else  %}
-                                                <td class = "photo">
-                                                    <img src="../static/image/champions/{{ result[i]['championName'][j] }}.png" style = "width : 50px; height : 50px;">
-                                                </td>
+										<td class="position" align="center">
+											{{ result[i]['teamPositionKR'][j] }}
+										</td>
 
-                                                <td class = "position">
-                                                    {{ result[i]['teamPositionKR'][j] }}
-                                                </td>
+										<td class="score" align="center">
+											{{ result[i]['trollScore'][j] }}
+										</td>
+										{% if j % 2 != 0 %}
+									</tr>
+									{% else %}
+									<td width=20px;></td>
+									{% endif %}
+									{% endfor %}
+								</table>
+							</div>
+							{% endfor %}
+							<div class="col-md-1">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="bottom">
+			<p style="color:white;" style="font-family: 'Do Hyeon', sans-serif;">
+				<br> 2021-2 게임 내 어뷰징 회피 팀
+			</p>
+		</div>
 
-                                                <td class = "score">
-                                                    {{ result[i]['trollScore'][j] }}
-                                                </td>
-                                                {% endif %}
-                                        {% if j % 2 != 0 %}
-                                            </tr>
-                                        {% else %}
-                                            <td width = 20px;></td>
-                                        {% endif %}
-                                    {% endfor %}
-                                </table>
-                                <p class = "sum">
-                                    개인 점수 합산 : {{ result[i]['totalScore'] }} 
-                                </p>
-                            </td>
-                    {% endfor %}
-                </tr>
-            </table>
-            </center>
-            {% if length != 1 %}
-            <div id = "summary">
-                <p>
-                    팀원들의 트롤력 평균은 {{ averageScore }} 점입니다. <br>
-                    {% if averageScore >= 80 %}
-                        당장 도망가세요 
-                    {% elif averageScore >= 60 %}
-                        질 확률이 높습니다
-                    {% elif averageScore >= 40 %}
-                        쉽지 않은 게임입니다
-                    {% elif averageScore >= 10 %}
-                        무난한 게임입니다
-                    {% else %}
-                        버스 탈 준비 하시면 됩니다
-                    {% endif%}
-                </p>
-            </div>
-            {% endif %}
-        </div>
-        <div id = "bottom">
-            <p style = "color:white;">
-                <br> 2021-2 게임 내 어뷰징 회피 팀 
-              </p>
-        </div>
-    </body>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/scripts.js"></script>
+</body>
+
 </html>

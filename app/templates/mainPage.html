@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>트롤력 측정기</title>
+    <title>닷지해야할까?</title>
     <link rel="stylesheet" href="../static/css/mainPage.css">
   </head>
   <body>
@@ -15,14 +15,14 @@
     {% endwith %}
     <div id = "container">
       <div id = "title">
-        <a href="/" style = "text-decoration : none; color : white;">트롤력 측정기</a>
+        <a href="/" style = "text-decoration : none; color : white; font-family: 'Do Hyeon'">닷지가 필요할때</a>
       </div>
 
       <div id = "content">
-          <img src="../static/image/mainPhoto.png">
           <form action="search", method = "POST">
-            <br>
-            <textarea name="identification" cols="65" rows="5" style = "font-size : 20px" placeholder = "채팅창 대화를 붙여넣어주세요" required></textarea>
+            <br><br><br>
+            <p style = "color : aliceblue; font-size : 30px;">팀원들은 다 멀쩡할까?</p>
+            <textarea name="identification" cols="65" rows="5" style = "font-size : 20px" placeholder = "채팅창 입장 대화를 붙여넣어주세요" required></textarea>
             <br><br>
             <input type="submit" value = "트롤찾기", style = "color : aliceblue; background-color:deepskyblue; width : 100px; height : 50px;font-weight : 500; font-size : 16px;">
           </form>
@@ -37,6 +37,10 @@
           <input type="submit" value = "알아보기" style = "background : deepskyblue; color : aliceblue; font-weight : 500; font-size : 16px;">
         </form>
       </div>
+    </div>
+
+    <div id = "guide">
+      <a href="guide.html" style = "text-decoration : none; color : aliceblue">사용방법</a>
     </div>
 
     <div id = bottom>
