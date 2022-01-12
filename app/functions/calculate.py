@@ -2,8 +2,11 @@ from requests.models import REDIRECT_STATI, HTTPError
 from riotwatcher import LolWatcher
 from riotwatcher._apis.league_of_legends.SummonerApiV4 import SummonerApiV4
 from riotwatcher._apis.league_of_legends.MatchApiV5 import MatchApiV5
+from werkzeug.datastructures import Range
 import app.functions.functions as fun
-import time as t
+import time
+import json
+import os
 
 DeathKingScore = 20
 NoItemScore = 10
@@ -45,24 +48,26 @@ def calculateScorePerUser(userName, target) :
     # 구해온 게임 횟수를 gameCount에 저장
     resultSet['gameCount'] = len(matchInfos)
 
-    for i in range(len(matchInfos)) :
-        # 이번 판의 길이를 알아내기 위한 부분
-        # 나누는 부분이 if, else로 나눠져있는 이유는 11.21패치 이전에 실행된 게임들에 대해서는 시간 단위가 ms, 이후에는 s이기 때문.
-        gameDuration = matchInfos[i]['info']['gameDuration']
-        if (gameDuration > 100000) :
-            gameDuration /= 60000
-        else :
-            gameDuration /= 60
+    # 필요한 파일이 존재하는지 확인한다.
+    filePath = "../static/data" + resultSet['tier'] + " " + resultSet['division'] + "result.json"
+    try :
+        with open(filePath, 'r', encoding = 'utf-8') as file :
+            data = json.dump(file)
+    except :
+        data = False
 
-        # 게임 길이를 구했다면 반올림 후 적용한다.
-        gameDuration = round(gameDuration, 1)
-        resultSet['gameDuration'].append(gameDuration)        
+    for i in range(len(matchInfos)) :
+        # 게임 길이를 먼저 입력한다
+        resultSet['gameDuration'].append(fun.getGameLength(matchInfos[i]))
 
         # 이번 판의 트롤력 계산을 위한 0점짜리 추가
         resultSet['trollScore'].append(0)
-
+        
+        # 유저의 게임 내에서의 위치 구하기
         userLoc = fun.getUserLoc(matchInfos[i], summonerDTO['name'])
-        resultSet['win'].append(matchInfos[i]['info']['participants'][userLoc]['win'])
+
+        # 승리 여부 넣기
+        resultSet['win'].append(matchInfos[i]['info']['participants'][userLoc]['win'])        
 
         #사용한 챔피언명 구하는 부분
         resultSet['championName'].append(matchInfos[i]['info']['participants'][userLoc]['championName'])
@@ -73,42 +78,107 @@ def calculateScorePerUser(userName, target) :
         #영문 포지션명을 한글로 변환
         resultSet['teamPositionKR'].append(fun.getPositionKR(resultSet['teamPosition'][i]))
 
-        #DeathKing 구하는 부분
-        if (fun.DeathKing(matchInfos[i], userLoc)) :
-            resultSet['trollScore'][i] += DeathKingScore
-            resultSet['deathKingScore'] += DeathKingScore
+        ememyLoc = fun.getEnemyLocation(matchInfos[i], userLoc)
+        enemyChampion = matchInfos[i]['info']['participants'][ememyLoc]['championName']
 
-        #noItem 구하는 부분
-        if (fun.buySameItems(matchInfos[i], userLoc)) :
-            resultSet['trollScore'][i] += NoItemScore
-            resultSet['badItemScore'] += NoItemScore
+        # 트롤력 계산 시 data가 존재하는지 먼저 확인
+        try :
+            # data가 없다면 KeyError 발생시키기
+            if not(data) :
+                raise KeyError
 
-        #badSpell 구하는 부분
-        if (not(fun.UseCorrectSpell(matchInfos[i], userLoc))) :
-            resultSet['trollScore'][i] += BadSpellScore
-            resultSet['badSpellScore'] += BadSpellScore
-        
-        #딜량 차이 구하는 부분
-        damageDiff = fun.damageDiffByPosition(matchInfos[i], userLoc)
-        if (damageDiff != 0) :
-            resultSet['trollScore'][i] += (damageDiff * DamageDiffWeight)
-            resultSet['weakDamageScore'] += (damageDiff * DamageDiffWeight)
+            # 사용할 데이터 찾기
+            positionName = resultSet['teamPosition'][i]
+            for number in range(len(data[positionName])) :
+                if data[positionName][number]['championName'] == resultSet['championName'][i] and data[positionName][number]['enemyChampionName'] == enemyChampion :
+                    data = data['positionName'][number]
+                    break
+            
+            # 사용할 데이터의 크기 확인 후 5 이하면 사용하지 않음(객관성을 위해)
+            if data['gameCount'] <= 5 :
+                raise KeyError
 
-        #골드 차이 구하는 부분
-        goldDiff = fun.goldDiffByPostion(matchInfos[i], userLoc)
-        if (goldDiff != 0) :
-            resultSet['trollScore'][i] += (goldDiff * GoldDiffWeight)
-            resultSet['lackGoldScore'] += (goldDiff * GoldDiffWeight)
 
-        #시야점수 차이 구하는 부분
-        visionDiff = fun.visionScoreDiffByPosition(matchInfos[i], userLoc)
-        if (visionDiff != 0) :
-            resultSet['trollScore'][i] += (visionDiff * visionScoreWeight)
-            resultSet['visionLowScore'] += (visionDiff * visionScoreWeight)
+            ''' 데이터를 이용하여 트롤력을 측정하는 부분 '''
 
-        resultSet['trollScore'][i] = round(resultSet['trollScore'][i], 1)
+            #DeathKing 구하는 부분
+            if (fun.DeathKing(matchInfos[i], userLoc)) :
+                resultSet['trollScore'][i] += DeathKingScore
+                resultSet['deathKingScore'] += DeathKingScore
 
-        resultSet['totalScore'] += resultSet['trollScore'][i]
+            #noItem 구하는 부분
+            if (fun.buySameItems(matchInfos[i], userLoc)) :
+                resultSet['trollScore'][i] += NoItemScore
+                resultSet['badItemScore'] += NoItemScore
+
+            #badSpell 구하는 부분
+            if (not(fun.UseCorrectSpell(matchInfos[i], userLoc))) :
+                resultSet['trollScore'][i] += BadSpellScore
+                resultSet['badSpellScore'] += BadSpellScore
+            
+            #딜량 차이 구하는 부분
+            damageDiff = fun.damageDiffWithData(matchInfos[i], userLoc, data)
+            if (damageDiff != 0) :
+                resultSet['trollScore'][i] += (damageDiff * DamageDiffWeight)
+                resultSet['weakDamageScore'] += (damageDiff * DamageDiffWeight)
+
+            #골드 차이 구하는 부분
+            goldDiff = fun.goldDiffWithData(matchInfos[i], userLoc, data)
+            if (goldDiff != 0) :
+                resultSet['trollScore'][i] += (goldDiff * GoldDiffWeight)
+                resultSet['lackGoldScore'] += (goldDiff * GoldDiffWeight)
+
+            #시야점수 차이 구하는 부분
+            visionDiff = fun.vScoreDiffWithData(matchInfos[i], userLoc, data)
+            if (visionDiff != 0) :
+                resultSet['trollScore'][i] += (visionDiff * visionScoreWeight)
+                resultSet['visionLowScore'] += (visionDiff * visionScoreWeight)
+
+            resultSet['trollScore'][i] = round(resultSet['trollScore'][i], 1)
+
+            resultSet['totalScore'] += resultSet['trollScore'][i]
+
+
+        except KeyError :     
+
+            ''' 상대 플레이어와의 격차를 이용해서 트롤력을 측정하는 부분 '''  
+
+            #DeathKing 구하는 부분
+            if (fun.DeathKing(matchInfos[i], userLoc)) :
+                resultSet['trollScore'][i] += DeathKingScore
+                resultSet['deathKingScore'] += DeathKingScore
+
+            #noItem 구하는 부분
+            if (fun.buySameItems(matchInfos[i], userLoc)) :
+                resultSet['trollScore'][i] += NoItemScore
+                resultSet['badItemScore'] += NoItemScore
+
+            #badSpell 구하는 부분
+            if (not(fun.UseCorrectSpell(matchInfos[i], userLoc))) :
+                resultSet['trollScore'][i] += BadSpellScore
+                resultSet['badSpellScore'] += BadSpellScore
+            
+            #딜량 차이 구하는 부분
+            damageDiff = fun.damageDiffByPosition(matchInfos[i], userLoc)
+            if (damageDiff != 0) :
+                resultSet['trollScore'][i] += (damageDiff * DamageDiffWeight)
+                resultSet['weakDamageScore'] += (damageDiff * DamageDiffWeight)
+
+            #골드 차이 구하는 부분
+            goldDiff = fun.goldDiffByPostion(matchInfos[i], userLoc)
+            if (goldDiff != 0) :
+                resultSet['trollScore'][i] += (goldDiff * GoldDiffWeight)
+                resultSet['lackGoldScore'] += (goldDiff * GoldDiffWeight)
+
+            #시야점수 차이 구하는 부분
+            visionDiff = fun.visionScoreDiffByPosition(matchInfos[i], userLoc)
+            if (visionDiff != 0) :
+                resultSet['trollScore'][i] += (visionDiff * visionScoreWeight)
+                resultSet['visionLowScore'] += (visionDiff * visionScoreWeight)
+
+            resultSet['trollScore'][i] = round(resultSet['trollScore'][i], 1)
+
+            resultSet['totalScore'] += resultSet['trollScore'][i]
 
         # 매 루프마다 챔피언별 트롤력 측정을 위한 계산 추가
         try :

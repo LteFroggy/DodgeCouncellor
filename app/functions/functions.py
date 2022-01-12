@@ -8,6 +8,8 @@ key = 'RGAPI-c404d684-2d9e-4143-a8f6-a600774bb17b' #키 입력해주세요!
 watcher = LolWatcher(key)
 
 
+''' 멀티서치 구현을 위해 사용된 함수입니다'''
+
 def nameSlice(input) :   #멀티서치 기능을 위해 사용되는 함수
     player = input.split("\n")
     for i in range(len(player)) :
@@ -17,6 +19,10 @@ def nameSlice(input) :   #멀티서치 기능을 위해 사용되는 함수
                 break
     return player
 
+
+
+
+''' API를 이용하여 유저들의 정보를 불러오는 데에 사용되는 함수입니다 '''
 
 def getUserNames(TIER, DIVISION, PAGE) :    #특정 티어, 디비전, 페이지의 유저명 모두 가져오기
     playerList=[] # 가져온 플레이어들의 소환사명을 저장하기 위한 리스트
@@ -44,16 +50,35 @@ def getSummonerInfo(playerName) :   #PlayerName을 이용하여 PlayerName에 �
 def getMatchBySummonerDTO(infoList, gameCount) :     #SummonDTO에서 얻을 수 있는 puuid를 이용하여 최근 n개의 게임에 대한
     return watcher.match.matchlist_by_puuid("asia", infoList['puuid'], None, gameCount, None, "ranked")   #Puuid를 이용하여 각 유저의 랭크게임 gameCount개에 대한 MatchID 가져오기
 
-def getUserLoc(matchInfo, playerName) : #해당 게임에서 유저가 몇 번째 플레이어인지 찾아내서 위치 반환
-    for i in range (10) :
-        if playerName == matchInfo['info']['participants'][i]['summonerName'] :
-            return i
-
 def getMatchInfoByMatchID(matchList) :  #MatchID로 MatchINFO를 가져옴
     matchInfo = []
     for i in range(len(matchList)) :
         matchInfo.append(watcher.match.by_id('asia', matchList[i]))
     return matchInfo
+
+
+
+
+''' 트롤력 측정에 필요한 정보들을 불러오는 함수입니다 '''
+
+#해당 게임에서 유저가 몇 번째 플레이어인지 찾아내서 위치 반환
+def getUserLoc(matchInfo, playerName) : 
+    for i in range (10) :
+        if playerName == matchInfo['info']['participants'][i]['summonerName'] :
+            return i
+
+# 해당 게임에서 유저의 상대는 몇 번째 플레이어인지 찾아내서 위치 반환
+def getEnemyLocation(matchData, playerLocation) :
+    position = matchData['info']['participants'][playerLocation]['teamPosition']
+
+    if playerLocation < 5 :
+        for i in range(5, 10) :
+            if position == matchData['info']['participants'][i]['teamPosition'] :
+                return i
+    else :
+        for i in range(5) :
+            if position == matchData['info']['participants'][i]['teamPosition'] :
+                return i
 
 def getPositionKR(pos) :   #해당 게임에서 유저의 포지션을 한글로 반환함(탑, 정글, 미드, 원딜, 서폿)
     if (pos == "TOP") :
@@ -66,6 +91,37 @@ def getPositionKR(pos) :   #해당 게임에서 유저의 포지션을 한글로
         return "원딜"
     else :
         return "서폿"
+
+# 게임 시간을 소수점 1번째 자리에서 반올림하여 반환해주는 함수
+def getGameLength(matchInfo) :
+    gameDuration = matchInfo['info']['gameDuration']
+    if (gameDuration > 100000) :
+        gameDuration /= 60000
+    else :
+        gameDuration /= 60
+
+    # 게임 길이를 구했다면 반올림 후 반환한다
+    return round(gameDuration, 1)
+     
+
+
+
+
+''' 기본적인 요소들에 대한 트롤력을 측정하기 위해 사용되는 함수입니다 '''
+
+def DeathKing(matchInfo, userLoc):
+    #데스수가 게임시간-5 보다 크거나 같으면 대가리 박은걸로 간주
+    gameDuration = matchInfo['info']['gameDuration']
+    if (gameDuration > 100000) :
+        gameDuration /= 60000
+    else :
+        gameDuration /= 60
+    death_count = matchInfo['info']['participants'][userLoc]['deaths']
+    
+    if death_count >= gameDuration - 5:
+        return True
+    else:
+        return False
 
 def DeathKing(matchInfo, userLoc):
     #데스수가 게임시간-5 보다 크거나 같으면 대가리 박은걸로 간주
@@ -124,6 +180,12 @@ def UseCorrectSpell(singleMatchInfo, playerNum) : #한 게임에서 플레이어
         else :  #강타 안들었으면 True
             return True
 
+
+
+
+
+''' 상대 플레이어와의 격차를 이용하여 트롤력을 측정할 때 사용되는 함수입니다 '''
+
 def damageDiffByPosition(matchInfo, userLoc):
     pos = matchInfo['info']['participants'][userLoc]['teamPosition']
     otherPlayerLoc = 0
@@ -144,7 +206,7 @@ def damageDiffByPosition(matchInfo, userLoc):
 
     # 같은 포지션의 딜량을 나누어서 몇배인지 확인
     try :
-        dmgDiff = matchInfo['info']['participants'][otherPlayerLoc]['totalDamageDealt'] / matchInfo['info']['participants'][userLoc]['totalDamageDealt']
+        dmgDiff = matchInfo['info']['participants'][otherPlayerLoc]['totalDamageDealtToChampions'] / matchInfo['info']['participants'][userLoc]['totalDamageDealtToChampions']
     except ZeroDivisionError:
         return 0
 
@@ -218,4 +280,60 @@ def visionScoreDiffByPosition(matchInfo, userLoc) :
     elif vScoreDiff >= 1.2 :
         return vScoreDiff
     else:
+        return 0
+
+
+
+
+''' 데이터를 이용하여 트롤력을 측정할 때 사용하는 함수입니다 '''
+
+# 데이터와 가한 데미지를 비교하여 반환해주는 함수
+def damageDiffWithData(matchInfo, userLoc, data) :
+    dealtDamage =  matchInfo['info']['participants'][userLoc]['totalDamageDealtToChampions']
+    data_damage = data['damagePerMin'] / data['gameCount']
+
+    gameLength = getGameLength(matchInfo)
+    data_damage *= gameLength
+
+    damageDiff = dealtDamage / data_damage
+
+    if damageDiff >= 10 :
+        return 10
+    elif damageDiff >= 1.5 :
+        return damageDiff
+    else :
+        return 0
+
+# 데이터와 벌어들인 골드를 비교하여 반환해주는 함수
+def goldDiffWithData(matchInfo, userLoc, data) :
+    earnedGold = matchInfo['info']['participants'][userLoc]['goldEarned']
+    data_gold = data['damagePerMin'] / data['gameCount']
+
+    gameLength = getGameLength(matchInfo)
+    data_gold *= gameLength
+
+    goldDiff = earnedGold / data_gold
+
+    if goldDiff >= 10 :
+        return 10
+    elif goldDiff >= 1.2 :
+        return goldDiff
+    else :
+        return 0    
+
+# 데이터와 시야점수를 비교하여 반환해주는 함수
+def vScoreDiffWithData(matchInfo, userLoc, data) :
+    visionScore = matchInfo['info']['participants'][userLoc]['visionScore']
+    data_vScore = data['damagePerMin'] / data['gameCount']
+
+    gameLength = getGameLength(matchInfo)
+    data_vScore *= gameLength
+
+    vScoreDiff = visionScore / data_vScore
+
+    if vScoreDiff >= 10 :
+        return 10
+    elif vScoreDiff >= 1.2 :
+        return vScoreDiff
+    else :
         return 0
