@@ -25,6 +25,7 @@ def calculateScorePerUser(userName, target) :
         "userName" : userName,
         "tier" : "",
         "division" : "",
+        "mainChampion" : "",
         "championName" : [],
         "gameDuration" : [],
         "teamPosition" : [],
@@ -210,6 +211,9 @@ def calculateScorePerUser(userName, target) :
     for k in range(len(resultSet['trollScorePerChampion'])) :
         resultSet['trollScorePerChampion'][k]['trollScore'] /= resultSet['trollScorePerChampion'][k]['gameCount']
         resultSet['trollScorePerChampion'][k]['trollScore'] = round(resultSet['trollScorePerChampion'][k]['trollScore'], 1)
+
+    resultSet['mainChampion'] = sorted(resultSet['trollScorePerChampion'], key = (lambda x : x['gameCount']), reverse = True)[0]['championName']
+
     # 제일 트롤력이 높은 챔피언 3개 정도만 우선 출력하기 위해 trollScorePerChampion을 정렬
     resultSet['trollScorePerChampion'] = sorted(resultSet['trollScorePerChampion'], key = (lambda x : x['trollScore']), reverse = True)
 
