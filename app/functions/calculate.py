@@ -186,6 +186,7 @@ def calculateScorePerUser(userName, target) :
                 # 이미 목록에 있는 챔피언이면 챔피언에 값만 추가
                 if resultSet['championName'][i] == resultSet['trollScorePerChampion'][k]['championName'] :
                     resultSet['trollScorePerChampion'][k]['trollScore'] += resultSet['trollScore'][i]
+                    resultSet['trollScorePerChampion'][k]['gameCount'] += 1
                     raise Exception
         except Exception :
             continue
@@ -193,7 +194,8 @@ def calculateScorePerUser(userName, target) :
         # 처음 보는 챔피언이면 새로운 목록 추가
         resultSet['trollScorePerChampion'].append( {
             "championName" : resultSet['championName'][i],
-            "trollScore" : resultSet['trollScore'][i]
+            "trollScore" : resultSet['trollScore'][i],
+            "gameCount" : 1
         })
 
     resultSet['totalScore'] = round(resultSet['totalScore'], 1)
@@ -203,6 +205,13 @@ def calculateScorePerUser(userName, target) :
     for i in range(len(resultSet['win'])) :
         if resultSet['win'][i] :
             resultSet['winCount'] += 1
+
+    # 판수를 적용해서 챔프별 트롤력 재정리
+    for k in range(len(resultSet['trollScorePerChampion'])) :
+        resultSet['trollScorePerChampion'][k]['trollScore'] /= resultSet['trollScorePerChampion'][k]['gameCount']
+        resultSet['trollScorePerChampion'][k]['trollScore'] = round(resultSet['trollScorePerChampion'][k]['trollScore'], 1)
+    
+    print(resultSet)
 
     # 제일 트롤력이 높은 챔피언 3개 정도만 우선 출력하기 위해 trollScorePerChampion을 정렬
     resultSet['trollScorePerChampion'] = sorted(resultSet['trollScorePerChampion'], key = (lambda x : x['trollScore']), reverse = True)
