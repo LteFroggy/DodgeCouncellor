@@ -16,7 +16,7 @@
 }
 
 #content {
-    padding-top : 100px;
+    padding-top : 60px;
     text-align: center;
 }
 
@@ -37,7 +37,7 @@
 }
 
 #soloSearch {
-    margin-top : 150px;
+    margin-top : 60px;
     display  : inline-block;
     padding-bottom : 20px;
     width : 300px;
