@@ -81,17 +81,9 @@ def soloUserInfo() :
         else :
             flash("HTTPError 발생 : " + str(e))
             return render_template('/mainPage.html')
-    
-    except IndexError as e :
-        flash("유저명이 잘못 입력되었습니다.")
-        return render_template('/mainPage.html')
 
-    except TypeError as e :
-        flash("충분한 횟수의 랭크 게임을 플레이하지 않은 유저입니다.")
-        return render_template('/mainPage.html')       
-        
-    except jinja2.exceptions.UndefinedError as e :
-        flash("충분한 횟수의 랭크 게임을 플레이하지 않은 유저입니다.")
+    except IndexError as e:
+        flash("충분한 횟수의 랭크 게임을 플레이하지 않은 유저가 존재합니다.")
         return render_template('/mainPage.html')
 
 
@@ -122,32 +114,16 @@ def homePage():
 
     except HTTPError as e:
         if (str(e)[0:3] == "404") :
-            flash("소환사 이름을 제대로 입력해주세요")
-            return render_template('/mainPage.html')
+            flash("유저명이 잘못 입력되었습니다. 채팅창 입장 대화를 다시 입력해주세요")
+            return render_template('/mainPage.html') 
 
         elif (str(e)[0:3] == "403") :
             flash("Riot 서버 오류입니다")
             return render_template('/mainPage.html')
 
-        elif (str(e)[0:4] == "list") :
-            flash("유저명이 잘못 입력되었습니다. 채팅창 입장 대화를 다시 입력해주세요")
-            return render_template('/mainPage.html')
-
-        else  :
+        else :
             flash("HTTPError 발생 : " + str(e))
             return render_template('/mainPage.html')
-            
-    except IndexError as e :
-        flash("소환사 이름을 제대로 입력해주세요")
-        return render_template('/mainPage.html')
-
-    except ZeroDivisionError :
-        flash("유저명이 잘못 입력되었습니다. 채팅창 대화를 다시 입력해주세요")
-        return render_template('/mainPage.html')
-
-    except TypeError as e :
-        flash("유저명이 잘못 입력되었습니다. 채팅창 대화를 다시 입력해주세요")
-        return render_template('/mainPage.html')       
 
     except jinja2.exceptions.UndefinedError as e :
         flash("충분한 횟수의 랭크 게임을 플레이하지 않은 유저가 존재합니다.")
