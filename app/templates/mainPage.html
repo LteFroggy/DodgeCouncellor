@@ -37,6 +37,13 @@
           <input type="submit" value = "알아보기" style = "background : deepskyblue; color : aliceblue; font-weight : 500; font-size : 16px;">
         </form>
       </div>
+      <div id = "count"> 
+        {% if searchCount == 0 %}
+          오늘은 아직 검색이 이루어지지 않았습니다
+        {% else %}
+        오늘은 총 {{searchCount}} 회의 검색이 이루어졌습니다
+        {% endif %}
+      </div>
     </div>
 
     <div id = "guide">

@@ -4,9 +4,7 @@ from riotwatcher._apis.league_of_legends.SummonerApiV4 import SummonerApiV4
 from riotwatcher._apis.league_of_legends.MatchApiV5 import MatchApiV5
 from werkzeug.datastructures import Range
 import app.functions.functions as fun
-import time
 import json
-import os
 
 DeathKingScore = 20
 NoItemScore = 10

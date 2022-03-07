@@ -4,6 +4,7 @@ from flask import request
 from flask import Flask
 import app.functions.calculate as cal
 import app.functions.functions as fun
+import app.functions.countCheck as dateFun
 import time
 import threading
 import jinja2
@@ -52,7 +53,9 @@ fun.calcualteScorePerUser함수가 반환하는 결과입니다!
 
 @main.route('/', methods = ['GET'])
 def mainPage() :
-    return render_template('mainPage.html')
+    count = dateFun.getCount()
+    print("검색 횟수 :", count)
+    return render_template('mainPage.html', searchCount = count)
 
 
 @main.route('/guide', methods = ['GET'])
@@ -67,7 +70,8 @@ def soloUserInfo() :
 
     try :
         cal.calculateScorePerUser(userName, info)
-        
+
+        dateFun.plusCount()
         return render_template('/result.html', result = info, length = 1)
     except HTTPError as e:
         if (str(e)[0:3] == "404") :
@@ -110,6 +114,8 @@ def homePage():
         averageScore /= len(infoList)
         averageScore = round(averageScore, 1)
 
+
+        dateFun.plusCount()
         return render_template('/result.html', result = infoList, averageScore = averageScore, length = 5)
 
     except HTTPError as e:
