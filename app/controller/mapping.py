@@ -54,7 +54,6 @@ fun.calcualteScorePerUser함수가 반환하는 결과입니다!
 @main.route('/', methods = ['GET'])
 def mainPage() :
     count = dateFun.getCount()
-    print("검색 횟수 :", count)
     return render_template('mainPage.html', searchCount = count)
 
 
