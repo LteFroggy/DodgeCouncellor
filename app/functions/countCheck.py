@@ -1,7 +1,7 @@
 import datetime
 import json
 date = datetime.datetime.now().date()
-filePath = "../static/data/searchResult.json"
+filePath = 'app/static/data/searchResult.json'
 
 
 def getCount() :
